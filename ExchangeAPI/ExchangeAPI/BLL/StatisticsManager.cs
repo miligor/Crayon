@@ -20,19 +20,18 @@ namespace ExchangeAPI.BLL
         }
         private StatisticsManager() {  }
 
-        public List<Rates> RatesList = new List<Rates>();
-
-        public UserResponse GetStatistics(List<string> DateList, string BaseCurrency, string TargetCurrency)
+        public async Task<UserResponse> GetStatistics(List<string> DateList, string BaseCurrency, string TargetCurrency)
         {
             UserResponse result = new UserResponse();
 
-            List<Rates> RateList = new List<Rates>();
-            foreach(string Date in DateList)
-            {
-                Rates rate = RatesManager.GetRate(Date, BaseCurrency, TargetCurrency);
-                RateList.Add(rate);
-            }
+            //List<Rates> RateList = new List<Rates>();
+            //foreach(string Date in DateList)
+            //{
+            //    Rates rate = RatesManager.GetRate(Date, BaseCurrency, TargetCurrency);
+            //    RateList.Add(rate);
+            //}
 
+            var RateList = await GetRates(DateList, BaseCurrency, TargetCurrency);   
             List<Rates> OrderedRateList = RateList.OrderBy(x => x.Rate).ToList();
 
             result.MinRateDate = OrderedRateList[0].Date;
@@ -44,6 +43,14 @@ namespace ExchangeAPI.BLL
             result.AverageRate = Math.Round(OrderedRateList.Average(x => x.Rate), 10, MidpointRounding.ToEven);
 
             return result;
+        }
+
+        private async Task<List<Rates>> GetRates(List<string> DateList, string BaseCurrency, string TargetCurrency)
+        {
+            var Tasks = DateList.Select(x => RatesManager.GetRate(x, BaseCurrency, TargetCurrency));
+            var Result = await Task.WhenAll(Tasks);
+
+            return Result.ToList();
         }
     }
 }

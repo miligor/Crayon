@@ -11,7 +11,7 @@ namespace ExchangeAPI.DAL
 {
     public static class RatesManager
     {
-        public static Rates GetRate(string Date, string Base, string Target)
+        public static async Task<Rates> GetRate(string Date, string Base, string Target)
         {
             Rates result = null;
 
@@ -20,7 +20,7 @@ namespace ExchangeAPI.DAL
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            HttpResponseMessage response = client.GetAsync($"{Date}?base={Base}&symbols={Target}").Result;
+            var response = await client.GetAsync($"{Date}?base={Base}&symbols={Target}");
             if (response.IsSuccessStatusCode)
             {
                 string jsonResponse = response.Content.ReadAsStringAsync().Result;

@@ -14,7 +14,7 @@ namespace ExchangeAPI.Controllers
     public class StatisticsController : ControllerBase
     {
         [HttpGet]
-        public ActionResult<string> Get([FromQuery] List<string> Dates, string Base, string Target)
+        public async Task<ActionResult<string>> Get([FromQuery] List<string> Dates, string Base, string Target)
         {
             foreach(string date in Dates)
             {
@@ -25,7 +25,7 @@ namespace ExchangeAPI.Controllers
             if(string.IsNullOrEmpty(Base)) { return BadRequest($"Base currency is not set!"); }
             if (string.IsNullOrEmpty(Target)) { return BadRequest($"Target currency is not set!"); }
 
-            var result = StatisticsManager.Instance.GetStatistics(Dates, Base, Target);
+            var result = await StatisticsManager.Instance.GetStatistics(Dates, Base, Target);
             return Ok(result);
         }
     }
